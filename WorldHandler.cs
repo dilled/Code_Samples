@@ -17,16 +17,10 @@ public class WorldHandler : MonoBehaviour
     {
         var rec = citys.city;
         //   Debug.Log("Build " + building);
-        //GameObject currentBuilding = Instantiate(buildingPrefabs[rec.buildingPrefab], FromFloat3(rec.buildingLocation), FromFloat4(rec.buildingRotation)) as GameObject;
         GameObject currentCity = Instantiate(cityPrefab, rec.worldLocation, Quaternion.identity) as GameObject;
         currentCity.transform.parent = transform;
         CityMapActions cityMapActions = currentCity.GetComponent<CityMapActions>();
-        cityMapActions.UpdateCityValues(rec);
-    //    cityMapActions.ownerID = rec.ownerID;
-     //   cityMapActions.cityName = rec.cityName;
-      //  cityMapActions.population = rec.population;
-        //currentCity.transform.position = rec.worldLocation;
-        
+        cityMapActions.UpdateCityValues(rec); 
     }
     public bool IsNewCity(string value)
     {

@@ -12,10 +12,6 @@ public class City
 {
     public string ownerID;
     public int population;
-    //  public int army;
-    //  public int farmers;
-    //  public int resource;
-    //  public List<BuildingPayloadData> buildingPayloadData;
     public string cityName;
     public Vector3 worldLocation;
 
