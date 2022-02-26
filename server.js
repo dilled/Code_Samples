@@ -249,10 +249,6 @@ async function getCityNPCs(npcPayloadData){
   //console.log('npcPayloadData ', npcPayloadData)
 }
 
-var currentClients = 0;
-var maxClients =0;
-
-
 const moveRoom = (socket, from, to) => {
   socket.leave(from);
   //to = 'lobby';
@@ -296,55 +292,19 @@ io.on('connection', (socket) => {
   var serverTimeNow = new Date().toUTCString();
   var thisPlayerId = shortid.generate();
   var playerCityId ='';
-  /*var playerCity = {
-    ownerID: playerCityId,
-    population: defaultCity.population,
-    army: defaultCity.army,
-    farmers: defaultCity.farmers,
-    slaves: defaultCity.slaves,
-    resource: defaultCity.resource,
-    buildingPayloadData: [],
-    cityName: '',
-    worldLocation: [], //randomCityLocation(),//defaultCity.worldLocation,
-    npcPayloadData: [],
-    updated_timestamp: serverTimeNow,
-  };*/
-  //console.log('default city', defaultCity);
+  
   console.log('Client connected', thisPlayerId);
-  //socket.emit('getType');
-  //moveRoom(socket, socket.id, room);
-//  socket.join(room);
+ 
   socket.on('join', function(data) {
       console.log(data);
       socket.join(data.room);
       console.log('rooms: ', io.sockets.adapter.rooms);
   });
-  currentClients = io.engine.clientsCount;
-  totalClients ++;
-  if (maxClients < currentClients){
-      maxClients = currentClients;
-  }
+  
   console.log('Free City locations: ', freeCityLocations.length);
   console.log('Cities in world: ', worldCities.length);
   console.log('cityLocations in world: ', cityLocations.length);
-  ///if(freeCityLocations.length < 25){
-  //  randomCityLocation(25);
- // }
-  //socket.on('disconnect', () => console.log('Client disconnected'));
   
-  //socket.emit("BuildScene", playerScene);
-  
-  /*var player = {
-      sid: socket.id,
-      id: thisPlayerId,
-      cityId: playerCityId,
-      location: [],
-      rotation: 0.0,
-      speed: 0.0,
-      verticalVelocity: 0.0,
-      inputMove: [],
-  }
-  players[thisPlayerId] = player;*/
   socket.on('IsServerReady', async (data) => {
     console.log('[' + (new Date()).toUTCString() + '] ' + socket.id + ' IsServerReady... Answering "Who\'s there?"...' + data);      
     if (data == serverVersion){
@@ -372,9 +332,7 @@ io.on('connection', (socket) => {
       console.log('KnockKnock[' + (new Date()).toUTCString() + '] ' + socket.id + ' game knocking... Answering "Who\'s there?"...' + data);      
       
       if(data.ownerID ===""){
-        //var defaultCity = getCity('defaultCity');
-        //for(var a in freeCityLocations){
-          
+        
         var npcPayloadData = await getNPCPayloadData(defaultCity.farmers, defaultCity.army, defaultCity.slaves);
         var random = Math.floor(Math.random() * freeCityLocations.length);
         playerCityId = shortid.generate();
@@ -387,7 +345,7 @@ io.on('connection', (socket) => {
           resource: defaultCity.resource,
           buildingPayloadData: defaultCity.buildingPayloadData,
           cityName: data.cityName,
-          worldLocation: freeCityLocations[random], //randomCityLocation(),//defaultCity.worldLocation,
+          worldLocation: freeCityLocations[random], 
           npcPayloadData: npcPayloadData,
           updated_timestamp: serverTimeNow,
         };
@@ -403,7 +361,7 @@ io.on('connection', (socket) => {
         }
         var newCityData  = {"cities": [worldCities[playerCityId]]};
         io.emit('WorldData', newCityData);
-        //}
+        
       }else{
         playerCityId = data.ownerID;
         var playerCity = worldCities[playerCityId];
@@ -435,12 +393,9 @@ io.on('connection', (socket) => {
         worldCities[playerCityId] = playerCity;
         let vals = [playerCity.ownerID, playerCity.population, playerCity.army, playerCity.farmers, playerCity.resource, playerCity.buildingPayloadData, playerCity.npcPayloadData, playerCity.slaves, playerCity.updated_timestamp];
         updateCityDB(vals);
-        //worldCities[playerCityId].cityName = data.cityName;
+
       }
       await getCityNPCs(playerCity.npcPayloadData);
-
-  //    console.log('playerCity! ',playerCity)
-     // room = playerCityId;
       var player = {
         sid: socket.id,
         id: thisPlayerId,
@@ -455,15 +410,11 @@ io.on('connection', (socket) => {
       }
       
       players[thisPlayerId] = player;
-  ///    moveRoom(socket, socket.id, playerCityId);
       socket.join(playerCityId)
       socket.emit('BuildScene', worldCities[playerCityId]);
       var worldData  = {"cities": await getWorldData()};
       socket.emit('WorldData', worldData);
-      
-    //  socket.emit('FetchPlayerCityData', playerCityId);
-    //  console.log(worldCities[playerCityId]);
-      //console.log(players[thisPlayerId]);
+    
       data = {serverTimeNow: serverTimeNow, lastDBUpdateTime: playerCity.updated_timestamp};
       
       socket.emit('WhosThere', data);
@@ -473,17 +424,14 @@ io.on('connection', (socket) => {
       var clients= io.sockets.adapter.rooms;
       data.clients = clients;
       console.log("It'sME Rooms", io.sockets.adapter.rooms);
-      //console.log('player room ', players[thisPlayerId].room);
-//      console.log(npcPlayers);
+   
       console.log('npc count ',getNPCCount());
 
       socket.emit('resetPlayers');
       socket.emit('SetNPCControl', true);
       for(var playerId in players){ 
- //         console.log(playerId)
+
           if(playerId == thisPlayerId){
- //           console.log('me')
-            //socket.to(players[thisPlayerId].room).emit('Spawn', players[thisPlayerId]);
               continue;
           }
           console.log(players[playerId].sid)
@@ -495,27 +443,10 @@ io.on('connection', (socket) => {
   //            console.log('Sending spawn to new player for id: ',players[playerId],' from ',players[thisPlayerId]);// playerId, player.name);
           } 
       }
-//        socket.to(players[thisPlayerId].room).emit('Spawn', players[thisPlayerId]);
-  /*    if(getNPCCount() === 0){
-        console.log("Fetch NPC data!!", npcPlayers.length);
-        socket.emit("GetNPCData");
-      }
-      if(NPCsUpToDate){
-        for(var npcId in npcPlayers){ 
-              socket.emit('spawnNPC', npcPlayers[npcId]);
-      }
-      }*/
-      /*for (var npc in npcPlayers){
-        console.log(npc);
-        socket.emit('spawnNPC', npcPlayers[npc]);
-      }*/
-    //  io.emit('clients', {currentClients: currentClients, maxClients: maxClients, totalClients: totalClients});
-    //  io.emit('rooms', {data: getRoomsClients()});        
   });
 
   //*******************PLAYERS MOVES */
-  socket.on('MoveRig', function(data) {
-    
+  socket.on('MoveRig', function(data) {   
     data.id = thisPlayerId;
     data.sid = socket.id;
     //console.log(data)
@@ -531,15 +462,6 @@ io.on('connection', (socket) => {
     else{
       console.log('Moving player not found')
     }
-    
-    /*for(var playerId in players){
-        if(playerId === thisPlayerId){
-            continue;
-        }
-        if (players[playerId].room === players[thisPlayerId].room){
-            io.to(players[playerId].sid).emit('moveRig', data);
-        }
-    }*/
     
   });
 
@@ -557,8 +479,6 @@ io.on('connection', (socket) => {
   socket.on('NpcPositionsToServer', function(data) {
     console.log("NPC Positions ", data);
     AddNPCPosition(data);
-    //io.emit('rooms', {data: getRoomsClients()});
-  //  console.log(npcPlayers);
   });  
   
   socket.on('NpcPositionsOK', function(data) {
@@ -576,16 +496,10 @@ io.on('connection', (socket) => {
     npcPlayers[data.id].location = data.location;
     npcPlayers[data.id].target = data.target;
     npcPlayers[data.id].workAnimState = data.workAnimState;
-    //console.log("MoveNPC", data);
-    //io.emit("MoveNPC", npcPlayer);
     io.to(players[thisPlayerId].room).emit('MoveNPC', npcPlayer);
   });
 
-
-  
-
 //*************** CITY AND BUILDINGS *********** 
-
   socket.on('UpdatePlayerCityData', function(data) {
     console.log('UpdatePlayerCityData', worldCities);
     worldCities[playerCityId] = defaultCity;//data;
@@ -629,9 +543,6 @@ io.on('connection', (socket) => {
               io.to(players[playerId].sid).emit('Spawn', players[thisPlayerId]);
               players[playerId].isAttacking = data.isAttacking;
               socket.emit('Spawn', players[playerId]);
-              if(cityOwner){
-               // io.to(players[playerId].sid).emit('SetNPCControl', false);
-              }
           }
       }
       if(cityOwner || firstInRoom){
