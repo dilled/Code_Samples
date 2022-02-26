@@ -601,7 +601,7 @@ async function dbApp() {
     console.log(error)
   } finally {
     if(freeCityLocations.length < 10){
-      randomCityLocation(100, true);
+      randomCityLocation(100, true); 
     }
   }
   // World cities .....
