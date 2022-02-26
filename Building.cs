@@ -15,15 +15,4 @@ public class BuildingData
     public Vector3 buildingLocation;
     public Quaternion buildingRotation;
     public Vector3 buildingScale;
-
-
-    public virtual void ChangeHealth()
-    {
-        Debug.Log("ChangeHealth" + name);
-    }
-    public void RemoveFromInventory()
-    {
-        //Inventory.instance.Remove(this);
-    }
-    
 }

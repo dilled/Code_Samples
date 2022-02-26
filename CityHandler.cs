@@ -18,10 +18,6 @@ public class CityHandler : MonoBehaviour
             
             public string ownerID;
             public int population;
-        //  public int army;
-        //  public int farmers;
-        //  public int resource;
-        //  public List<BuildingPayloadData> buildingPayloadData;
             public string cityName;
             public float[] worldLocation;
     }
@@ -77,26 +73,9 @@ public class CityHandler : MonoBehaviour
         }
 
         instance = this;
-        /*
-        if (PlayerPrefs.GetString("CityName") != null)
-        {
-            cityName = PlayerPrefs.GetString("CityName");
-        }
-        if (PlayerPrefs.GetString("ownerID") != null)
-        {
-            ownerID = PlayerPrefs.GetString("ownerID");
-        }
-        */
     }
 
     #endregion
-
-    // Callback which is triggered when
-    // an item gets added/removed.
-    public delegate void OnItemChanged();
-    public OnItemChanged onItemChangedCallback;
-
-    //public List<WorldCities> worldCities = new List<WorldCities>();
     
     public List<Building> buildings = new List<Building>();
 
@@ -128,7 +107,6 @@ public class CityHandler : MonoBehaviour
             farmers = farmers,
             slaves = slaves,
             resource = resource,
-         //   buildingPayloadData = 
         };
         return payload;
     }
@@ -259,7 +237,6 @@ public class CityHandler : MonoBehaviour
     
     public void BuildCity()
     {
-      //  Debug.Log("Start City " + buildings.Count);
         transform.position = worldLocation;
         foreach (var building in buildings)
         {
@@ -273,27 +250,15 @@ public class CityHandler : MonoBehaviour
         GameObject currentBuilding = Instantiate(buildingPrefabs[rec.buildingPrefab], rec.buildingLocation, rec.buildingRotation) as GameObject;
         currentBuilding.transform.parent = transform;
         currentBuilding.transform.localPosition = rec.buildingLocation;
-     //   currentBuilding.transform.localScale = rec.buildingScale;// FromFloat3(rec.buildingScale);
-    }
+     }
     
     public CityPayloadData GetPayload()
     {
-        //var buildingList = new List<BuildingData>();
         var list = new List<BuildingPayloadData>();
 
         foreach (var building in buildings)
         {
             var rec = building.buildingData;
-            /*var _data = new BuildingData 
-            {
-                name = rec.name,
-                level = rec.level,
-                health = rec.health,
-                buildingPrefab = rec.buildingPrefab,
-                buildingLocation = rec.buildingLocation,
-                buildingRotation = rec.buildingRotation,
-                buildingScale = rec.buildingScale
-            };*/
             
             BuildingPayloadData _dat = new BuildingPayloadData
             {
@@ -306,8 +271,6 @@ public class CityHandler : MonoBehaviour
                 buildingScale = ToFloat3(rec.buildingScale)
             };
             list.Add(_dat);
-            //buildingList.Add(_data);
-            //Debug.Log(JsonUtility.ToJson(_dat));
         }
         CityPayloadData cityData = new CityPayloadData
         {
@@ -322,8 +285,6 @@ public class CityHandler : MonoBehaviour
             worldLocation = ToFloat3(worldLocation),
             npcPayloadData = npcHandler.GetPayload()
         };
-        //Debug.Log(list);
-        //Debug.Log(JsonConvert.SerializeObject(list.ToArray(), Formatting.Indented));
         return cityData;
     }
     public static float[] ToFloat3(Vector3 vec)
@@ -359,15 +320,4 @@ public class CityHandler : MonoBehaviour
 
         return rotation;
     }
-
-    /*public void BuildNPCBase()
-    {
-        foreach (Transform rec in npcHandler.gameObject.transform)
-        {
-            Destroy(rec.gameObject);
-        }
-        npcHandler.npcCharacters.Clear();
-        npcHandler.BuildNPCs(farmers, army);
-    }*/
-    
 }
