@@ -6,18 +6,15 @@ using System;
 using UnityEngine.UI;
 
 #if HAS_JSON_NET
-//If Json.Net is installed, this is required for Example 6. See documentation for informaiton on how to install Json.NET
 using Newtonsoft.Json;
 #endif
 
 public class Network : MonoBehaviour
 {
     public string localhost = "localhost:8123";
-    public string heroku = "sleepy-brook-59080.herokuapp.com/";
-
+    public string heroku = "**********.herokuapp.com/";
     public Text uiStatus;
     public Text debug;
-
     public SocketIOCommunicator sioCom;
 
     Dictionary<string, GameObject> players;
@@ -40,7 +37,6 @@ public class Network : MonoBehaviour
     {
         public string ownerID;
         public string cityName;
-    //    public Vector3 worldLocation;
     }
     [Serializable]
     struct FoodData
@@ -100,11 +96,9 @@ public class Network : MonoBehaviour
             {
                 ownerID = gameManager.ownerID,
                 cityName = gameManager.cityName,
-            //    worldLocation = gameManager.worldLocation
             };
             
             sioCom.Instance.Emit("IsServerReady", gameManager.serverVersion);
-           // sioCom.Instance.Emit("KnockKnock", JsonUtility.ToJson(city));
         });
         sioCom.Instance.On("ServerIsReady", (string data) => {
             Debug.Log("ServerIsReady: "+ data);
@@ -112,7 +106,6 @@ public class Network : MonoBehaviour
             {
                 ownerID = gameManager.ownerID,
                 cityName = gameManager.cityName,
-                //    worldLocation = gameManager.worldLocation
             };
             sioCom.Instance.Emit("KnockKnock", JsonUtility.ToJson(city));
         });
@@ -120,12 +113,9 @@ public class Network : MonoBehaviour
         sioCom.Instance.On("ServerMessage", (string payload) =>
         {
             Debug.Log("RECEIVED a ServerMessage event" + payload);
-            //We will always receive a payload object as Socket.IO does not distinguish. In case the server sent nothing (as it will do in this example) the object will be null.
             if (payload == null)
-                Debug.Log("RECEIVED a ServerMessage event without payload data??");
-            
+                Debug.Log("RECEIVED a ServerMessage event without payload data??");       
             uiStatus.text = payload.ToString();
-         //   gameManager.RestartScene();
         });
 
         sioCom.Instance.On("BuildScene", (string payload) =>
@@ -146,7 +136,6 @@ public class Network : MonoBehaviour
                 cityHandler.buildings.Clear();
                 cityHandler.BuildCity(payload);
 
-                //    cityHandler.BuildNPCBase();
                 if (!gameManager.isAttacking)
                 {
                     playerGameobject.transform.position = cityHandler.playerSpawnLocation;
@@ -170,19 +159,14 @@ public class Network : MonoBehaviour
             Debug.Log("RECEIVED a SetNPCControl event" + payload);
             if (payload == "true")
             {
-                //npcHandler.inControlOfNPCs = true;
                 npcHandler.SetControl(true);
                 Debug.Log("SetNPCControl Data!!!" + payload);
-                
-
             }
             else
             {
-                //npcHandler.inControlOfNPCs = false;
                 npcHandler.SetControl(false);
                 Debug.Log("SetNPCControl payload was false!!!");
-            }
-            
+            }           
         });
 
         sioCom.Instance.On("WorldData", (string payload) =>
@@ -190,36 +174,24 @@ public class Network : MonoBehaviour
             Debug.Log("RECEIVED a WorldData event" + payload);
             if (payload != null)
             {
-                
-               // Debug.Log("World Data!!!" + payload);
-                cityHandler.BuildWorld(payload);
-                
+                cityHandler.BuildWorld(payload);               
             }
             else
             {
                 Debug.Log("WorldData payload was NULL!!!");
             }
             debug.text = debug.text + "WorldData " + payload.ToString();
-            
-  //          playerGameobject.transform.position = cityHandler.playerSpawnLocation;
-  //          playerGameobject.SetActive(true);// = true;
         });
 
         sioCom.Instance.On("WhosThere", (string payload) =>
         {
             Debug.Log("RECEIVED a WhosThere event" + payload);
-            //We will always receive a payload object as Socket.IO does not distinguish. In case the server sent nothing (as it will do in this example) the object will be null.
             if (payload == null)
                 Debug.Log("RECEIVED a WhosThere event without payload data??");
 
             gameManager.camHandler.SwitchCams();
             gameManager.UpdateServerTime(payload);
-        //    playerGameobject.transform.position = cityHandler.playerSpawnLocation;
-     //       playerGameobject.transform.name = payload;           
-        //    playerGameobject.SetActive(true);
             playerGameobject.GetComponent<NetworkMove>().connected = true;
-            //As the server just asked for who we are, let's be polite and answer him.
-            //EXAMPLE 3: Sending an event with payload data
             sioCom.Instance.Emit("ItsMe", JsonUtility.ToJson(payload));
         });
 
@@ -247,28 +219,12 @@ public class Network : MonoBehaviour
             }
         });
 
-        sioCom.Instance.On("spawnNPC", (string payload) =>
-        {
-            if (payload != null)
-            {
-                Debug.Log("SPAWN NPC!!!" + payload);
-            //    OnSpawnedNPC(payload);
-            }
-            else
-            {
-                Debug.Log("SPAWN NPC payload was NULL!!!");
-            }
-        });
-
         sioCom.Instance.On("GetNPCData", (string payload) =>
         {
             Debug.Log("Server is fetching NPC data!!!");
-            
-            //npcPlayers.GetComponent<NPCHandler>().NPCRequested();
             List<Vector3> npcPositions = npcPlayers.GetComponent<NPCHandler>().GetNPCPositions();
             foreach(Vector3 position in npcPositions)
-            {
-                
+            {    
                 sioCom.Instance.Emit("NpcPositionsToServer", JsonUtility.ToJson(position));
             }
             sioCom.Instance.Emit("NpcPositionsOK");
@@ -282,7 +238,6 @@ public class Network : MonoBehaviour
                 NPCPayloadData payloadData = JsonUtility.FromJson<NPCPayloadData>(payload);
                 if (npcs.ContainsKey(payloadData.id))
                 {
-                    //    Debug.Log("npc moving FOUND" + payload);
                     var npcPlayer = npcs[payloadData.id];
 
                     Patrol npcMove = npcPlayer.GetComponent<Patrol>();
@@ -302,8 +257,7 @@ public class Network : MonoBehaviour
                 }
             }
         });
-
-
+        // Other player moves
         sioCom.Instance.On("moveRig", (string payload) =>
         {
             if (payload != null)
@@ -320,7 +274,7 @@ public class Network : MonoBehaviour
                         payloadData.verticalVelocity, 
                         payloadData.location, 
                         payloadData.rotation
-                        );
+                    );
                 }
             }
         });
@@ -354,7 +308,7 @@ public class Network : MonoBehaviour
             playerGameobject.GetComponent<NetworkMove>().needSend = needSend;
             npcHandler.needSend = needSend;
             
-            Debug.Log("Player room" + payload);
+            Debug.Log("Player change the room " + payload);
         
         });
 
@@ -379,7 +333,6 @@ public class Network : MonoBehaviour
         });
         sioCom.Instance.On("ChangeAnimState", (string payload) =>
         {
-            //We will always receive a payload object as Socket.IO does not distinguish. In case the server sent nothing (as it will do in this example) the object will be null.
             if (payload == null)
             {
                 Debug.Log("RECEIVED a ChangeAnimState event without payload data??");
@@ -402,7 +355,6 @@ public class Network : MonoBehaviour
         });
         sioCom.Instance.On("DeployFood", (string payload) =>
         {
-            //We will always receive a payload object as Socket.IO does not distinguish. In case the server sent nothing (as it will do in this example) the object will be null.
             if (payload == null)
             {
                 Debug.Log("RECEIVED a DeployFood event without payload data??");
@@ -457,7 +409,7 @@ public class Network : MonoBehaviour
         PayloadData payloadData = JsonUtility.FromJson<PayloadData>(payload);
         if (!players.ContainsKey(payloadData.sid))
         {
-            Vector3 spawnPosition = payloadData.location; //Vector3.zero;
+            Vector3 spawnPosition = payloadData.location; 
             
 
          //   Debug.Log("Player spawned " + spawnPosition + " : " + payload);
@@ -473,12 +425,10 @@ public class Network : MonoBehaviour
             }
             //Mover movePos = player.GetComponentInChildren<Mover>();
             player.transform.name = payloadData.sid;
-
-
             players.Add(payloadData.sid, player);
         }
     }
-
+    
     public bool NeedSend()
     {
         var others = players.Count > 0;
@@ -498,15 +448,12 @@ public class Network : MonoBehaviour
     }
     public static Vector3 FromFloat3(float[] vecs)
     {
-        //Debug.Log(vecs);
         Vector3 vector3 = new Vector3(vecs[0], vecs[1], vecs[2]);
-
         return vector3;
     }
     public static Quaternion FromFloat4(float[] vecs)
     {
         Quaternion rotation = new Quaternion(vecs[0], vecs[1], vecs[2], vecs[3]);
-
         return rotation;
     }
 }
